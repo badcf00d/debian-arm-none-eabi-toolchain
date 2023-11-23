@@ -1,0 +1,90 @@
+#!/usr/bin/make -f
+# You must remove unused comment lines for the released package.
+export DH_VERBOSE = 1
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+#include /usr/share/dpkg/architecture.mk
+include /usr/share/dpkg/pkg-info.mk
+
+TARGET := arm-none-eabi
+
+TOP_DIR := $(shell pwd)
+BUILD_DIR := $(TOP_DIR)/build/
+
+export CFLAGS=${CFLAGS/-Werror=format-security/}
+export CXXFLAGS=${CXXFLAGS/-Werror=format-security/}
+
+CONFIGURE_FLAGS = \
+	--host=$(DEB_HOST_MULTIARCH) \
+	--target=$(TARGET) \
+	--bindir=/usr/bin \
+	--prefix=/usr/lib \
+	--libdir=/usr/lib \
+	--libexecdir=/usr/lib \
+	--mandir=/usr/share/man \
+	--infodir=/usr/share/doc/$(DEB_SOURCE)/info \
+	--htmldir=/usr/share/doc/$(DEB_SOURCE)/html \
+	--pdfdir=/usr/share/doc/$(DEB_SOURCE)/pdf \
+	--with-sysroot=/usr/lib/arm-none-eabi \
+	--with-native-system-header-dir=/include \
+	--with-pkgversion=$(DEB_VERSION) \
+	--enable-languages=c \
+	--with-multilib-list=rmprofile \
+	--with-newlib \
+	--enable-lto \
+	--enable-target-optspace \
+	--enable-multiarch \
+	--disable-libssp \
+	--disable-nls \
+	--disable-tls \
+	--disable-threads \
+	--disable-shared
+
+%:
+	dh $@ -B$(BUILD_DIR) --with autoreconf --parallel
+
+upstream-src:
+	wget -O /tmp/gcc_13.2.0.tar.xz https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-13.2.0/gcc-13.2.0.tar.xz
+	tar -C ../ -xf /tmp/gcc_13.2.0.tar.xz
+	tar -C ../ -caf ../gcc_13.2.0.orig.tar.gz --exclude=debian --exclude-vcs ./gcc-13.2.0
+
+
+override_dh_autoreconf:
+	autoreconf2.69 -f -i
+
+override_dh_clean:
+	dh_clean
+	rm -rf $(BUILD_DIR)
+
+override_dh_auto_configure:
+	dh_auto_configure -B$(BUILD_DIR) -- $(CONFIGURE_FLAGS)
+
+override_dh_auto_build:
+	dh_auto_build -B$(BUILD_DIR)
+
+override_dh_strip:
+	dh_strip -X.a
+	# Could strip debug information from newlib,
+	# but probably not worth the effort
+	# DEB_HOST_GNU_TYPE=arm-none-eabi dh_strip -X
+
+override_dh_auto_install:
+	dh_auto_install -B$(BUILD_DIR) --max-parallel=1
+
+override_dh_auto_test:
+	exit 0
+# dh_auto_test -B$(BUILD_DIR)
+# dh_auto_test -B$(BUILD_NANO_DIR)
+
+
+# override_dh_installchangelogs:
+# 	dh_installchangelogs ChangeLog
+
+# override_dh_installdocs:
+# 	set -ex; \
+# 		cd $(BUILD_DIR)/$(TARGET)/newlib; \
+# 		make html-recursive; \
+# 		cd -;
+# 	dh_installdocs
