@@ -1,0 +1,4 @@
+*.tar*
+
+gcc/gcc-*
+newlib/newlib-*
