@@ -67,7 +67,7 @@ CONFIGURE_FLAGS_NANO = \
 	dh $@ -B$(BUILD_DIR) --with autoreconf --parallel
 
 
-upstream-src:
+upstream-src: override_dh_clean
 	wget -O /tmp/gcc-13.2.0.tar.xz https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-13.2.0/gcc-13.2.0.tar.xz
 	wget -O /tmp/newlib-4.3.0.20230120.tar.gz ftp://sourceware.org/pub/newlib/newlib-4.3.0.20230120.tar.gz
 	tar -C /tmp -xf /tmp/gcc-13.2.0.tar.xz
@@ -75,6 +75,9 @@ upstream-src:
 	cp -a /tmp/gcc-13.2.0/* .
 	cp -a -n /tmp/newlib-4.3.0.20230120/* .
 	tar -C ../ -caf ../newlib_4.3.0.orig.tar.gz --exclude=debian --exclude-vcs ./newlib-4.3.0
+
+override_dh_autoreconf:
+	autoreconf2.69 -f -i
 
 override_dh_clean:
 	dh_clean

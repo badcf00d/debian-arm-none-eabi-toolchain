@@ -2,13 +2,15 @@
 
 set -e
 
-cd gcc/gcc-13.2.0
+cd newlib/newlib-4.3.0
 make -f debian/rules upstream-src
-debuild
+debuild --no-lintian
 
 cd -
 
-cd newlib/newlib-4.3.0
+cd gcc/gcc-13.2.0
 make -f debian/rules upstream-src
-debuild
+debuild --no-lintian
 
+
+echo "All done :)"

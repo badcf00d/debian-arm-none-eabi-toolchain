@@ -46,10 +46,7 @@ CONFIGURE_FLAGS = \
 	dh $@ -B$(BUILD_DIR) --with autoreconf --parallel
 
 upstream-src:
-	wget -O /tmp/gcc_13.2.0.tar.xz https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-13.2.0/gcc-13.2.0.tar.xz
-	tar -C ../ -xf /tmp/gcc_13.2.0.tar.xz
-	tar -C ../ -caf ../gcc_13.2.0.orig.tar.gz --exclude=debian --exclude-vcs ./gcc-13.2.0
-
+	wget -O ../gcc_13.2.0.orig.tar.xz https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-13.2.0/gcc-13.2.0.tar.xz
 
 override_dh_autoreconf:
 	autoreconf2.69 -f -i
