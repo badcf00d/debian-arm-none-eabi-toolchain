@@ -1,0 +1,6 @@
+newlib (4.3.0-1) UNRELEASED; urgency=low
+
+  * Initial release. Closes: #nnnn
+    <nnnn is the bug number of your ITP>
+
+ -- frost <>  Fri, 15 Sep 2023 12:52:01 +0530
